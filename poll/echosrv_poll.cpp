@@ -32,6 +32,7 @@ int main(void){
 	signal(SIGPIPE, SIG_IGN);	//信号忽略
 	signal(SIGCHLD, SIG_IGN);
 
+	int idlefd = open("dev/null",O_RDONLY | O_CLOEXEC);
 	int listenfd;
 	if ((listenfd = socket(PF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP)) < 0)
 	{
@@ -90,8 +91,24 @@ int main(void){
 			connfd = accept4(listenfd, (struct sockaddr*)&peeraddr, &peerlen, SOCK_NONBLOCK | SOCK_CLOEXEC);
 			if (connfd == -1)
 			{
-				ERR_EXIT("accpet4 error");
+				
+				if (connfd == -1)
+				{
+					if (errno == EMFILE)
+					{
+						close(idlefd);
+						idlefd = accept(listenfd, NULL, NULL);
+						close(idlefd);
+						idlefd = open("/dev/null", O_RDONLY | O_CLOEXEC);
+						continue;
+					}
+					else
+					{
+						ERR_EXIT("accept4");
+					}
+				}
 			}
+
 			pfd.fd = connfd;
 			pfd.events = POLLIN;
 			pfd.revents = 0;
