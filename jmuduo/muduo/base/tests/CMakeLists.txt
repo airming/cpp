@@ -16,8 +16,8 @@ target_link_libraries(atomic_unittest muduo_base)
 #add_executable(date_unittest Date_unittest.cc)
 #target_link_libraries(date_unittest muduo_base)
 #
-#add_executable(exception_test Exception_test.cc)
-#target_link_libraries(exception_test muduo_base)
+add_executable(exception_test Exception_test.cc)
+target_link_libraries(exception_test muduo_base)
 #
 #add_executable(fileutil_test FileUtil_test.cc)
 #target_link_libraries(fileutil_test muduo_base)
