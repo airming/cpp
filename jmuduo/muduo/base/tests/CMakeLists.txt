@@ -16,6 +16,17 @@ target_link_libraries(exception_test muduo_base)
 add_executable(mutex_test Mutex_test.cc)
 target_link_libraries(mutex_test muduo_base)
 
+if(BOOSTTEST_LIBRARY)
+add_executable(logstream_test LogStream_test.cc)
+target_link_libraries(logstream_test muduo_base boost_unit_test_framework)
+endif()
+
+add_executable(logstream_bench LogStream_bench.cc)
+target_link_libraries(logstream_bench muduo_base)
+
+add_executable(logfile_test LogFile_test.cc)
+target_link_libraries(logfile_test muduo_base)
+
 add_executable(singleton_test Singleton_test.cc)
 target_link_libraries(singleton_test muduo_base)
 
