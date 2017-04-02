@@ -1,16 +1,16 @@
 set(net_SRCS
 #  Acceptor.cc
 #  Buffer.cc
-#  Channel.cc
+   Channel.cc
 #  Connector.cc
    EventLoop.cc
 #  EventLoopThread.cc
 #  EventLoopThreadPool.cc
 #  InetAddress.cc
-#  Poller.cc
-#  poller/DefaultPoller.cc
-#  poller/EPollPoller.cc
-#  poller/PollPoller.cc
+   Poller.cc
+   poller/DefaultPoller.cc
+   poller/EPollPoller.cc
+   poller/PollPoller.cc
 #  Socket.cc
 #  SocketsOps.cc
 #  TcpClient.cc
@@ -27,7 +27,7 @@ install(TARGETS muduo_net DESTINATION lib)
 set(HEADERS
 #  Buffer.h
 #  Callbacks.h
-#  Channel.h
+   Channel.h
 #  Endian.h
    EventLoop.h
 #  EventLoopThread.h
