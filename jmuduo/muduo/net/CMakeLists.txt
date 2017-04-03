@@ -16,8 +16,8 @@ set(net_SRCS
 #  TcpClient.cc
 #  TcpConnection.cc
 #  TcpServer.cc
-#  Timer.cc
-#  TimerQueue.cc
+   Timer.cc
+   TimerQueue.cc
   )
 
 add_library(muduo_net ${net_SRCS})
@@ -36,7 +36,7 @@ set(HEADERS
 #  TcpClient.h
 #  TcpConnection.h
 #  TcpServer.h
-#  TimerId.h
+   TimerId.h
   )
 install(FILES ${HEADERS} DESTINATION include/muduo/net)
 

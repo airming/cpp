@@ -19,6 +19,8 @@
 #include <muduo/base/CurrentThread.h>
 #include <muduo/base/Thread.h>
 #include <muduo/base/Timestamp.h>
+#include <muduo/net/Callbacks.h>
+#include <muduo/net/TimerId.h>
 
 namespace muduo
 {
@@ -26,6 +28,7 @@ namespace muduo
 	{
 		class Channel;
 		class Poller;
+		class TimerQueue;
 		///
 		/// Reactor, at most one per thread.
 		///
@@ -50,9 +53,32 @@ namespace muduo
 			///
 			Timestamp pollReturnTime() const { return pollReturnTime_; }
 
+			 // timers
+
+			///
+			/// Runs callback at 'time'.
+			/// Safe to call from other threads.
+			///
+			TimerId runAt(const Timestamp& time, const TimerCallback& cb);
+			///
+			/// Runs callback after @c delay seconds.
+			/// Safe to call from other threads.
+			///
+			TimerId runAfter(double delay, const TimerCallback& cb);
+			///
+			/// Runs callback every @c interval seconds.
+			/// Safe to call from other threads.
+			///
+			TimerId runEvery(double interval, const TimerCallback& cb);
+			///
+			/// Cancels the timer.
+			/// Safe to call from other threads.
+			///
+			void cancel(TimerId timerId);
+
 			// internal usage
-			void updateChannel(Channel* channel);		// ��Poller�����ӻ��߸���ͨ��
-			void removeChannel(Channel* channel);		// ��Poller���Ƴ�ͨ��
+			void updateChannel(Channel* channel);		// 在Poller中添加或者更新通道
+			void removeChannel(Channel* channel);		// 从Poller中移除通道
 
 		  	void assertInLoopThread(){
 		  		if (!isInLoopThread())
@@ -76,11 +102,12 @@ namespace muduo
 		 	bool looping_; /* atomic */
 			bool quit_; /* atomic */
 			bool eventHandling_; /* atomic */
-			const pid_t threadId_;		// ��ǰ���������߳�ID
+			const pid_t threadId_;		// 当前对象所属线程ID
 			Timestamp pollReturnTime_;
 			boost::scoped_ptr<Poller> poller_;
-			ChannelList activeChannels_;		// Poller���صĻͨ��
-			Channel* currentActiveChannel_;	// ��ǰ���ڴ����Ļͨ��	
+			boost::scoped_ptr<TimerQueue> timerQueue_;
+			ChannelList activeChannels_;		// Poller返回的活动通道
+			Channel* currentActiveChannel_;	// 当前正在处理的活动通道	
 		};
 	}
 }
