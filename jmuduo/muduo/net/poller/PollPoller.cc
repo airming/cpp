@@ -74,6 +74,7 @@ void PollPoller::updateChannel(Channel* channel)
   LOG_TRACE << "fd = " << channel->fd() << " events = " << channel->events();
   if (channel->index() < 0)
   {
+	// index < 0说明是一个新的通道
     // a new one, add to pollfds_
     assert(channels_.find(channel->fd()) == channels_.end());
     struct pollfd pfd;
@@ -96,10 +97,13 @@ void PollPoller::updateChannel(Channel* channel)
     assert(pfd.fd == channel->fd() || pfd.fd == -channel->fd()-1);
     pfd.events = static_cast<short>(channel->events());
     pfd.revents = 0;
+	// 将一个通道暂时更改为不关注事件，但不从Poller中移除该通道
     if (channel->isNoneEvent())
     {
       // ignore this pollfd
-      pfd.fd = -channel->fd()-1;
+	  // 暂时忽略该文件描述符的事件
+	  // 这里pfd.fd 可以直接设置为-1
+      pfd.fd = -channel->fd()-1;	// 这样子设置是为了removeChannel优化
     }
   }
 }
@@ -123,6 +127,7 @@ void PollPoller::removeChannel(Channel* channel)
   }
   else
   {
+	// 这里移除的算法复杂度是O(1)，将待删除元素与最后一个元素交换再pop_back
     int channelAtEnd = pollfds_.back().fd;
     iter_swap(pollfds_.begin()+idx, pollfds_.end()-1);
     if (channelAtEnd < 0)

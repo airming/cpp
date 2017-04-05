@@ -5,7 +5,7 @@ set(net_SRCS
 #  Connector.cc
    EventLoop.cc
    EventLoopThread.cc
-#  EventLoopThreadPool.cc
+   EventLoopThreadPool.cc
    InetAddress.cc
    Poller.cc
    poller/DefaultPoller.cc
@@ -31,7 +31,7 @@ set(HEADERS
    Endian.h
    EventLoop.h
    EventLoopThread.h
-#  EventLoopThreadPool.h
+   EventLoopThreadPool.h
    InetAddress.h
 #  TcpClient.h
    TcpConnection.h

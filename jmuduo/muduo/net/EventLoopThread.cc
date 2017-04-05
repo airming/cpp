@@ -29,7 +29,7 @@ EventLoopThread::EventLoopThread(const ThreadInitCallback& cb)
 EventLoopThread::~EventLoopThread()
 {
   exiting_ = true;
-  loop_->quit();
+  loop_->quit();		// 退出IO线程，让IO线程的loop循环退出，从而退出了IO线程
   thread_.join();
 }
 
@@ -60,6 +60,9 @@ void EventLoopThread::threadFunc()
 
   {
     MutexLockGuard lock(mutex_);
+    // loop_指针指向了一个栈上的对象，threadFunc函数退出之后，这个指针就失效了
+    // threadFunc函数退出，就意味着线程退出了，EventLoopThread对象也就没有存在的价值了。
+    // 因而不会有什么大的问题
     loop_ = &loop;
     cond_.notify();
   }
