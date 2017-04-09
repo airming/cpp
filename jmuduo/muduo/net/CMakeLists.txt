@@ -1,6 +1,6 @@
 set(net_SRCS
    Acceptor.cc
-#  Buffer.cc
+   Buffer.cc
    Channel.cc
 #  Connector.cc
    EventLoop.cc
@@ -25,7 +25,7 @@ target_link_libraries(muduo_net muduo_base)
 
 install(TARGETS muduo_net DESTINATION lib)
 set(HEADERS
-#  Buffer.h
+   Buffer.h
 #  Callbacks.h
    Channel.h
    Endian.h
