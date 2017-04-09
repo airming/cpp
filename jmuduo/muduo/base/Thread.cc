@@ -101,7 +101,7 @@ void Thread::start()
   errno = pthread_create(&pthreadId_, NULL, &startThread, this);
   if (errno != 0)
   {
-    //LOG_SYSFATAL << "Failed in pthread_create";
+    LOG_SYSFATAL << "Failed in pthread_create";
   }
 }
 

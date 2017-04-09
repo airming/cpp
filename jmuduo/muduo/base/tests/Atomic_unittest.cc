@@ -5,7 +5,7 @@ int main()
 {
   {
   muduo::AtomicInt64 a0;
-  assert(a0.get() == 1);
+  assert(a0.get() == 0);
   assert(a0.getAndAdd(1) == 0);
   assert(a0.get() == 1);
   assert(a0.addAndGet(2) == 3);

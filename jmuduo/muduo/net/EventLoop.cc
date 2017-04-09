@@ -9,12 +9,16 @@
 #include <muduo/net/EventLoop.h>
 
 #include <muduo/base/Logging.h>
+#include <muduo/base/Mutex.h>
+#include <muduo/base/Singleton.h>
 #include <muduo/net/Channel.h>
 #include <muduo/net/Poller.h>
+#include <muduo/net/SocketsOps.h>
 #include <muduo/net/TimerQueue.h>
 
-//#include <poll.h>
 #include <boost/bind.hpp>
+
+#include <signal.h>
 #include <sys/eventfd.h>
 
 using namespace muduo;
@@ -27,16 +31,30 @@ namespace
 	__thread EventLoop* t_loopInThisThread = NULL;
 	const int kPollTimeMs = 10000;
 
-	int createEventfd()
-	{
-		int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
-		if (evtfd < 0)
-		{
-			LOG_SYSERR << "Failed in eventfd";
-			abort();			
-		}
-		return evtfd;
-	}
+int createEventfd()
+{
+  int evtfd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+  if (evtfd < 0)
+  {
+    LOG_SYSERR << "Failed in eventfd";
+    abort();
+  }
+  return evtfd;
+}
+
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+class IgnoreSigPipe
+{
+ public:
+  IgnoreSigPipe()
+  {
+    ::signal(SIGPIPE, SIG_IGN);
+    LOG_TRACE << "Ignore SIGPIPE";
+  }
+};
+#pragma GCC diagnostic error "-Wold-style-cast"
+
+IgnoreSigPipe initObj;
 }
 
 EventLoop* EventLoop::getEventLoopOfCurrentThread()
@@ -45,16 +63,17 @@ EventLoop* EventLoop::getEventLoopOfCurrentThread()
 }
 
 EventLoop::EventLoop()
-	:looping_(false),
-	 quit_(false),
-	 eventHandling_(false),	 
-	 callingPendingFunctors_(false),
-	 threadId_(CurrentThread::tid()),
-	 poller_(Poller::newDefaultPoller(this)),
-	 timerQueue_(new TimerQueue(this)),
-	 wakeupFd_(createEventfd()),
-	 wakeupChannel_(new Channel(this, wakeupFd_)),
-	 currentActiveChannel_(NULL)
+  : looping_(false),
+    quit_(false),
+    eventHandling_(false),
+    callingPendingFunctors_(false),
+    iteration_(0),
+    threadId_(CurrentThread::tid()),
+    poller_(Poller::newDefaultPoller(this)),
+    timerQueue_(new TimerQueue(this)),
+    wakeupFd_(createEventfd()),
+    wakeupChannel_(new Channel(this, wakeupFd_)),
+    currentActiveChannel_(NULL)
 {
 	LOG_TRACE << "EventLoop created " << this << " in thread " << threadId_;
   // 如果当前线程已经创建了EventLoop对象，终止(LOG_FATAL)
@@ -95,7 +114,7 @@ void EventLoop::loop()
 	{
 	    activeChannels_.clear();
 	    pollReturnTime_ = poller_->poll(kPollTimeMs, &activeChannels_);
-	    //++iteration_;
+	    ++iteration_;
 	    if (Logger::logLevel() <= Logger::TRACE)
 	    {
 	      printActiveChannels();
@@ -209,8 +228,7 @@ void EventLoop::abortNotInLoopThread()
 void EventLoop::wakeup()
 {
   uint64_t one = 1;
-  //ssize_t n = sockets::write(wakeupFd_, &one, sizeof one);
-  ssize_t n = ::write(wakeupFd_, &one, sizeof one);
+  ssize_t n = sockets::write(wakeupFd_, &one, sizeof one);
   if (n != sizeof one)
   {
     LOG_ERROR << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
@@ -220,8 +238,7 @@ void EventLoop::wakeup()
 void EventLoop::handleRead()
 {
   uint64_t one = 1;
-  //ssize_t n = sockets::read(wakeupFd_, &one, sizeof one);
-  ssize_t n = ::read(wakeupFd_, &one, sizeof one);
+  ssize_t n = sockets::read(wakeupFd_, &one, sizeof one);
   if (n != sizeof one)
   {
     LOG_ERROR << "EventLoop::handleRead() reads " << n << " bytes instead of 8";

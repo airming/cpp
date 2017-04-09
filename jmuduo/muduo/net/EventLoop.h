@@ -13,6 +13,7 @@
 
 #include <vector>
 
+#include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 
@@ -55,6 +56,7 @@ namespace muduo
 			///
 			Timestamp pollReturnTime() const { return pollReturnTime_; }
 
+  int64_t iteration() const { return iteration_; }
 
 			/// Runs callback immediately in the loop thread.
   			/// It wakes up the loop, and run the cb.
@@ -121,6 +123,7 @@ namespace muduo
 			bool quit_; /* atomic */
 			bool eventHandling_; /* atomic */
 			bool callingPendingFunctors_; /* atomic */
+			int64_t iteration_;
 			const pid_t threadId_;		// 当前对象所属线程ID
 			Timestamp pollReturnTime_;
 			boost::scoped_ptr<Poller> poller_;
