@@ -12,6 +12,8 @@
 using namespace muduo;
 using namespace muduo::detail;
 
+// 忽略-Wtype-limits
+// 关于diagnostic更多信息，可以查看http://gcc.gnu.org/onlinedocs/gcc/Diagnostic-Pragmas.html
 #pragma GCC diagnostic ignored "-Wtype-limits"
 //#pragma GCC diagnostic error "-Wtype-limits"
 namespace muduo
@@ -50,6 +52,7 @@ size_t convert(char buf[], T value)
   return p - buf;
 }
 
+// uintptr_t对于32平台来说就是unsigned int, 对于64位平台来说unsigned long int
 size_t convertHex(char buf[], uintptr_t value)
 {
   uintptr_t i = value;
@@ -185,6 +188,7 @@ LogStream& LogStream::operator<<(double v)
 template<typename T>
 Fmt::Fmt(const char* fmt, T val)
 {
+  // 断言T是算术类型
   BOOST_STATIC_ASSERT(boost::is_arithmetic<T>::value == true);
 
   length_ = snprintf(buf_, sizeof buf_, fmt, val);

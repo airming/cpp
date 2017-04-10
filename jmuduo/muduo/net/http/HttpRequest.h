@@ -126,13 +126,15 @@ class HttpRequest : public muduo::copyable
 
   void addHeader(const char* start, const char* colon, const char* end)
   {
-    string field(start, colon);
+    string field(start, colon);		// header域
     ++colon;
+    // 去除左空格
     while (colon < end && isspace(*colon))
     {
       ++colon;
     }
-    string value(colon, end);
+    string value(colon, end);		// header值
+    // 去除右空格
     while (!value.empty() && isspace(value[value.size()-1]))
     {
       value.resize(value.size()-1);
@@ -163,11 +165,11 @@ class HttpRequest : public muduo::copyable
   }
 
  private:
-  Method method_;
-  Version version_;
-  string path_;
-  Timestamp receiveTime_;
-  std::map<string, string> headers_;
+  Method method_;		// 请求方法
+  Version version_;		// 协议版本1.0/1.1
+  string path_;			// 请求路径
+  Timestamp receiveTime_;	// 请求时间
+  std::map<string, string> headers_;	// header列表
 };
 
 }

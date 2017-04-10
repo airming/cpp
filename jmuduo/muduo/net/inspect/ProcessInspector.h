@@ -22,7 +22,7 @@ namespace net
 class ProcessInspector : boost::noncopyable
 {
  public:
-  void registerCommands(Inspector* ins);
+  void registerCommands(Inspector* ins);	// ×¢²áÃüÁî½Ó¿Ú
 
  private:
   static string pid(HttpRequest::Method, const Inspector::ArgList&);

@@ -31,17 +31,17 @@ class EventLoopThread : boost::noncopyable
 
   EventLoopThread(const ThreadInitCallback& cb = ThreadInitCallback());
   ~EventLoopThread();
-  EventLoop* startLoop();	// Æô¶¯Ïß³Ì£¬¸ÃÏß³Ì¾Í³ÉÎªÁËIOÏß³Ì
+  EventLoop* startLoop();	// å¯åŠ¨çº¿ç¨‹ï¼Œè¯¥çº¿ç¨‹å°±æˆä¸ºäº†IOçº¿ç¨‹
 
  private:
-  void threadFunc();		// Ïß³Ìº¯Êı
+  void threadFunc();		// çº¿ç¨‹å‡½æ•°
 
-  EventLoop* loop_;			// loop_Ö¸ÕëÖ¸ÏòÒ»¸öEventLoop¶ÔÏó
+  EventLoop* loop_;			// loop_æŒ‡é’ˆæŒ‡å‘ä¸€ä¸ªEventLoopå¯¹è±¡
   bool exiting_;
   Thread thread_;
   MutexLock mutex_;
   Condition cond_;
-  ThreadInitCallback callback_;		// »Øµ÷º¯ÊıÔÚEventLoop::loopÊÂ¼şÑ­»·Ö®Ç°±»µ÷ÓÃ
+  ThreadInitCallback callback_;		// å›è°ƒå‡½æ•°åœ¨EventLoop::loopäº‹ä»¶å¾ªç¯ä¹‹å‰è¢«è°ƒç”¨
 };
 
 }

@@ -28,16 +28,16 @@ class LogFile : boost::noncopyable
   static string getLogFileName(const string& basename, time_t* now);
   void rollFile();
 
-  const string basename_;
-  const size_t rollSize_;
-  const int flushInterval_;
+  const string basename_;		// 日志文件basename
+  const size_t rollSize_;		// 日志文件达到rolSize_换一个新文件
+  const int flushInterval_;		// 日志写入间隔时间
 
   int count_;
 
   boost::scoped_ptr<MutexLock> mutex_;
-  time_t startOfPeriod_;
-  time_t lastRoll_;
-  time_t lastFlush_;
+  time_t startOfPeriod_;	// 开始记录日志时间（调整至零点的时间）
+  time_t lastRoll_;			// 上一次滚动日志文件时间
+  time_t lastFlush_;		// 上一次日志写入文件时间
   class File;
   boost::scoped_ptr<File> file_;
 

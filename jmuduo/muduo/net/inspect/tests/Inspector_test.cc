@@ -8,7 +8,7 @@ using namespace muduo::net;
 int main()
 {
   EventLoop loop;
-  EventLoopThread t;
+  EventLoopThread t;	// ¼à¿ØÏß³Ì
   Inspector ins(t.startLoop(), InetAddress(12345), "test");
   loop.loop();
 }

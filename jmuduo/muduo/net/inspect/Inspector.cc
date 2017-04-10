@@ -45,7 +45,7 @@ std::vector<string> split(const string& str)
     pos = str.find('/', start);
   }
 
-  if (start < str.length())
+  if (start < str.length())		// 说明最后一个字符不是'/'
   {
     result.push_back(str.substr(start));
   }
@@ -66,6 +66,10 @@ Inspector::Inspector(EventLoop* loop,
   g_globalInspector = this;
   server_.setHttpCallback(boost::bind(&Inspector::onRequest, this, _1, _2));
   processInspector_->registerCommands(this);
+  // 这样子做法是为了防止竞态问题
+  // 如果直接调用start，（当前线程不是loop所属的IO线程，是主线程）那么有可能，当前构造函数还没返回，
+  // HttpServer所在的IO线程可能已经收到了http客户端的请求了（因为这时候HttpServer已启动），那么就会回调
+  // Inspector::onRequest，而这时候构造函数还没返回，也就是说对象还没完全构造好
   loop->runAfter(0, boost::bind(&Inspector::start, this)); // little race condition
 }
 
@@ -96,6 +100,7 @@ void Inspector::onRequest(const HttpRequest& req, HttpResponse* resp)
   {
     string result;
     MutexLockGuard lock(mutex_);
+    // 遍历helps 
     for (std::map<string, HelpList>::const_iterator helpListI = helps_.begin();
          helpListI != helps_.end();
          ++helpListI)
@@ -106,11 +111,11 @@ void Inspector::onRequest(const HttpRequest& req, HttpResponse* resp)
            ++it)
       {
         result += "/";
-        result += helpListI->first;
+        result += helpListI->first;		// module
         result += "/";
-        result += it->first;
+        result += it->first;			// command
         result += "\t";
-        result += it->second;
+        result += it->second;			// help
         result += "\n";
       }
     }
@@ -121,6 +126,7 @@ void Inspector::onRequest(const HttpRequest& req, HttpResponse* resp)
   }
   else
   {
+    // 以"/"进行分割，将得到的字符串保存在result中
     std::vector<string> result = split(req.path());
     // boost::split(result, req.path(), boost::is_any_of("/"));
     //std::copy(result.begin(), result.end(), std::ostream_iterator<string>(std::cout, ", "));
@@ -128,30 +134,34 @@ void Inspector::onRequest(const HttpRequest& req, HttpResponse* resp)
     bool ok = false;
     if (result.size() == 0)
     {
+      // 这种情况是错误的，因此ok仍为false
     }
     else if (result.size() == 1)
     {
+      // 只有module，没有command也是错的，因此ok仍为false
       string module = result[0];
     }
     else
     {
       string module = result[0];
+      // 查找module所对应的命令列表
       std::map<string, CommandList>::const_iterator commListI = commands_.find(module);
       if (commListI != commands_.end())
       {
         string command = result[1];
         const CommandList& commList = commListI->second;
+		// 查找command对应的命令
         CommandList::const_iterator it = commList.find(command);
         if (it != commList.end())
         {
-          ArgList args(result.begin()+2, result.end());
+          ArgList args(result.begin()+2, result.end());		// 传递给回调函数的参数表
           if (it->second)
           {
             resp->setStatusCode(HttpResponse::k200Ok);
             resp->setStatusMessage("OK");
             resp->setContentType("text/plain");
             const Callback& cb = it->second;
-            resp->setBody(cb(req.method(), args));
+            resp->setBody(cb(req.method(), args));		// 调用cb将返回的字符串传给setBody
             ok = true;
           }
         }

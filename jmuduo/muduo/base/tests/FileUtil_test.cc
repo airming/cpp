@@ -20,6 +20,7 @@ int main()
   printf("%d %zd %" PRIu64 "\n", err, result.size(), size);
   err = FileUtil::readFile("/dev/zero", 1024, &result, &size);
   printf("%d %zd %" PRIu64 "\n", err, result.size(), size);
+  result.clear();
   err = FileUtil::readFile("/notexist", 1024, &result, &size);
   printf("%d %zd %" PRIu64 "\n", err, result.size(), size);
   err = FileUtil::readFile("/dev/zero", 102400, &result, &size);

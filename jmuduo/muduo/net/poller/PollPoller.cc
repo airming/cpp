@@ -74,7 +74,7 @@ void PollPoller::updateChannel(Channel* channel)
   LOG_TRACE << "fd = " << channel->fd() << " events = " << channel->events();
   if (channel->index() < 0)
   {
-	// index < 0ËµÃ÷ÊÇÒ»¸öĞÂµÄÍ¨µÀ
+	// index < 0è¯´æ˜æ˜¯ä¸€ä¸ªæ–°çš„é€šé“
     // a new one, add to pollfds_
     assert(channels_.find(channel->fd()) == channels_.end());
     struct pollfd pfd;
@@ -97,13 +97,13 @@ void PollPoller::updateChannel(Channel* channel)
     assert(pfd.fd == channel->fd() || pfd.fd == -channel->fd()-1);
     pfd.events = static_cast<short>(channel->events());
     pfd.revents = 0;
-	// ½«Ò»¸öÍ¨µÀÔİÊ±¸ü¸ÄÎª²»¹Ø×¢ÊÂ¼ş£¬µ«²»´ÓPollerÖĞÒÆ³ı¸ÃÍ¨µÀ
+	// å°†ä¸€ä¸ªé€šé“æš‚æ—¶æ›´æ”¹ä¸ºä¸å…³æ³¨äº‹ä»¶ï¼Œä½†ä¸ä»Pollerä¸­ç§»é™¤è¯¥é€šé“
     if (channel->isNoneEvent())
     {
       // ignore this pollfd
-	  // ÔİÊ±ºöÂÔ¸ÃÎÄ¼şÃèÊö·ûµÄÊÂ¼ş
-	  // ÕâÀïpfd.fd ¿ÉÒÔÖ±½ÓÉèÖÃÎª-1
-      pfd.fd = -channel->fd()-1;	// ÕâÑù×ÓÉèÖÃÊÇÎªÁËremoveChannelÓÅ»¯
+	  // æš‚æ—¶å¿½ç•¥è¯¥æ–‡ä»¶æè¿°ç¬¦çš„äº‹ä»¶
+	  // è¿™é‡Œpfd.fd å¯ä»¥ç›´æ¥è®¾ç½®ä¸º-1
+      pfd.fd = -channel->fd()-1;	// è¿™æ ·å­è®¾ç½®æ˜¯ä¸ºäº†removeChannelä¼˜åŒ–
     }
   }
 }
@@ -127,7 +127,7 @@ void PollPoller::removeChannel(Channel* channel)
   }
   else
   {
-	// ÕâÀïÒÆ³ıµÄËã·¨¸´ÔÓ¶ÈÊÇO(1)£¬½«´ıÉ¾³ıÔªËØÓë×îºóÒ»¸öÔªËØ½»»»ÔÙpop_back
+	// è¿™é‡Œç§»é™¤çš„ç®—æ³•å¤æ‚åº¦æ˜¯O(1)ï¼Œå°†å¾…åˆ é™¤å…ƒç´ ä¸æœ€åä¸€ä¸ªå…ƒç´ äº¤æ¢å†pop_back
     int channelAtEnd = pollfds_.back().fd;
     iter_swap(pollfds_.begin()+idx, pollfds_.end()-1);
     if (channelAtEnd < 0)

@@ -42,7 +42,7 @@ class PollPoller : public Poller
                           ChannelList* activeChannels) const;
 
   typedef std::vector<struct pollfd> PollFdList;
-  typedef std::map<int, Channel*> ChannelMap;	// key是文件描述符，value是Channel*
+  typedef std::map<int, Channel*> ChannelMap;	// key鏄枃浠舵弿杩扮锛寁alue鏄疌hannel*
   PollFdList pollfds_;
   ChannelMap channels_;
 };

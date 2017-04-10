@@ -65,6 +65,7 @@ TcpClient::TcpClient(EventLoop* loop,
     connect_(true),
     nextConnId_(1)
 {
+  // 设置连接成功回调函数
   connector_->setNewConnectionCallback(
       boost::bind(&TcpClient::newConnection, this, _1));
   // FIXME setConnectFailedCallback
@@ -84,12 +85,15 @@ TcpClient::~TcpClient()
   if (conn)
   {
     // FIXME: not 100% safe, if we are in different thread
+
+	// 重新设置TcpConnection中的closeCallback_为detail::removeConnection
     CloseCallback cb = boost::bind(&detail::removeConnection, loop_, _1);
     loop_->runInLoop(
         boost::bind(&TcpConnection::setCloseCallback, conn, cb));
   }
   else
   {
+    // 这种情况，说明connector处于未连接状态，将connector_停止
     connector_->stop();
     // FIXME: HACK
     loop_->runAfter(1, boost::bind(&detail::removeConnector, connector_));
@@ -102,9 +106,10 @@ void TcpClient::connect()
   LOG_INFO << "TcpClient::connect[" << name_ << "] - connecting to "
            << connector_->serverAddress().toIpPort();
   connect_ = true;
-  connector_->start();
+  connector_->start();	// 发起连接
 }
 
+// 用于连接已建立的情况下，关闭连接
 void TcpClient::disconnect()
 {
   connect_ = false;
@@ -118,6 +123,7 @@ void TcpClient::disconnect()
   }
 }
 
+// 停止connector_
 void TcpClient::stop()
 {
   connect_ = false;
@@ -149,9 +155,9 @@ void TcpClient::newConnection(int sockfd)
       boost::bind(&TcpClient::removeConnection, this, _1)); // FIXME: unsafe
   {
     MutexLockGuard lock(mutex_);
-    connection_ = conn;
+    connection_ = conn;		// 保存TcpConnection
   }
-  conn->connectEstablished();
+  conn->connectEstablished();		// 这里回调connectionCallback_
 }
 
 void TcpClient::removeConnection(const TcpConnectionPtr& conn)
@@ -170,6 +176,7 @@ void TcpClient::removeConnection(const TcpConnectionPtr& conn)
   {
     LOG_INFO << "TcpClient::connect[" << name_ << "] - Reconnecting to "
              << connector_->serverAddress().toIpPort();
+    // 这里的重连是指连接建立成功之后被断开的重连
     connector_->restart();
   }
 }

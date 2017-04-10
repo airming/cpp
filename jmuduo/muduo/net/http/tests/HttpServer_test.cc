@@ -13,6 +13,7 @@ using namespace muduo::net;
 extern char favicon[555];
 bool benchmark = false;
 
+// 实际的请求处理
 void onRequest(const HttpRequest& req, HttpResponse* resp)
 {
   std::cout << "Headers " << req.methodString() << " " << req.path() << std::endl;
@@ -78,6 +79,7 @@ int main(int argc, char* argv[])
   loop.loop();
 }
 
+// 这是一个图片数据
 char favicon[555] = {
   '\x89', 'P', 'N', 'G', '\xD', '\xA', '\x1A', '\xA',
   '\x0', '\x0', '\x0', '\xD', 'I', 'H', 'D', 'R',

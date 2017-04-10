@@ -68,6 +68,7 @@ int sockets::createNonblockingOrDie()
 
   setNonBlockAndCloseOnExec(sockfd);
 #else
+  // Linux 2.6.27以上的内核支持SOCK_NONBLOCK与SOCK_CLOEXEC
   int sockfd = ::socket(AF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
   if (sockfd < 0)
   {
@@ -149,6 +150,7 @@ ssize_t sockets::read(int sockfd, void *buf, size_t count)
   return ::read(sockfd, buf, count);
 }
 
+// readv与read不同之处在于，接收的数据可以填充到多个缓冲区中
 ssize_t sockets::readv(int sockfd, const struct iovec *iov, int iovcnt)
 {
   return ::readv(sockfd, iov, iovcnt);
@@ -167,6 +169,7 @@ void sockets::close(int sockfd)
   }
 }
 
+// 只关闭写的这一半
 void sockets::shutdownWrite(int sockfd)
 {
   if (::shutdown(sockfd, SHUT_WR) < 0)
@@ -240,6 +243,13 @@ struct sockaddr_in sockets::getPeerAddr(int sockfd)
   }
   return peeraddr;
 }
+
+// 自连接是指(sourceIP, sourcePort) = (destIP, destPort)
+// 自连接发生的原因:
+// 客户端在发起connect的时候，没有bind(2)
+// 客户端与服务器端在同一台机器，即sourceIP = destIP，
+// 服务器尚未开启，即服务器还没有在destPort端口上处于监听
+// 就有可能出现自连接，这样，服务器也无法启动了
 
 bool sockets::isSelfConnect(int sockfd)
 {

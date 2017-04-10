@@ -30,6 +30,7 @@ class LogFile::File : boost::noncopyable
   {
     size_t n = write(logline, len);
     size_t remain = len - n;
+	// remain>0表示没写完，需要继续写直到写完
     while (remain > 0)
     {
       size_t x = write(logline + n, remain);
@@ -152,6 +153,8 @@ void LogFile::rollFile()
 {
   time_t now = 0;
   string filename = getLogFileName(basename_, &now);
+  // 注意，这里先除kRollPerSeconds_ 后乘kRollPerSeconds_表示
+  // 对齐至kRollPerSeconds_整数倍，也就是时间调整到当天零点。
   time_t start = now / kRollPerSeconds_ * kRollPerSeconds_;
 
   if (now > lastRoll_)

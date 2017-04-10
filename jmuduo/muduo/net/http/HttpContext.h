@@ -56,6 +56,7 @@ class HttpContext : public muduo::copyable
   void receiveHeaders()
   { state_ = kGotAll; }  // FIXME
 
+  // 重置HttpContext状态
   void reset()
   {
     state_ = kExpectRequestLine;
@@ -70,8 +71,8 @@ class HttpContext : public muduo::copyable
   { return request_; }
 
  private:
-  HttpRequestParseState state_;
-  HttpRequest request_;
+  HttpRequestParseState state_;		// 请求解析状态
+  HttpRequest request_;				// http请求
 };
 
 }

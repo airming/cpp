@@ -59,7 +59,7 @@ class HttpServer : boost::noncopyable
   void onRequest(const TcpConnectionPtr&, const HttpRequest&);
 
   TcpServer server_;
-  HttpCallback httpCallback_;
+  HttpCallback httpCallback_;	// 在处理http请求（即调用onRequest）的过程中回调此函数，对请求进行具体的处理
 };
 
 }

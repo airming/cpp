@@ -37,6 +37,11 @@
 //
 // Arghh!  I wish C++ literals were automatically of type "string".
 
+// 用以实现高效的字符串传递
+// void foo(const StringPiece& x);
+// 这里既可以用const char*、也可以用std::string类型作为参数传递
+// 并且不涉及内存拷贝
+
 #ifndef MUDUO_BASE_STRINGPIECE_H
 #define MUDUO_BASE_STRINGPIECE_H
 
@@ -164,6 +169,15 @@ class StringPiece {
 //  cannot safely store a StringPiece into an STL container
 // ------------------------------------------------------------------
 
+/*
+在STL中为了提供通用的操作而又不损失效率，我们用到了一种特殊的技巧，叫traits编程技巧。
+具体的来说，traits就是通过定义一些结构体或类，并利用模板特化和偏特化的能力，
+给类型赋予一些特性，这些特性根据类型的 不同而异。
+在程序设计中可以使用这些traits来判断一个类型的一些特性，引发C++的函数重载机制，
+实现同一种操作因类型不同而异的效果。
+*/
+
+// 这里对__type_traits进行特化，给StringPiece一些特性
 #ifdef HAVE_TYPE_TRAITS
 // This makes vector<StringPiece> really fast for some STL implementations
 template<> struct __type_traits<muduo::StringPiece> {

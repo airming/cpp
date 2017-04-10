@@ -40,8 +40,8 @@ set(HEADERS
   )
 install(FILES ${HEADERS} DESTINATION include/muduo/net)
 
-#add_subdirectory(http)
-#add_subdirectory(inspect)
+add_subdirectory(http)
+add_subdirectory(inspect)
 
  if(NOT CMAKE_BUILD_NO_EXAMPLES)
    add_subdirectory(tests)

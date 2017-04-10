@@ -169,6 +169,7 @@ class Buffer : public muduo::copyable
     append(static_cast<const char*>(data), len);
   }
 
+  // 确保缓冲区可写空间>=len，如果不足则扩充
   void ensureWritableBytes(size_t len)
   {
     if (writableBytes() < len)
@@ -287,6 +288,7 @@ class Buffer : public muduo::copyable
     std::copy(d, d+len, begin()+readerIndex_);
   }
 
+  // 收缩，保留reserve个字节
   void shrink(size_t reserve)
   {
     // FIXME: use vector::shrink_to_fit() in C++ 11 if possible.
@@ -332,11 +334,11 @@ class Buffer : public muduo::copyable
   }
 
  private:
-  std::vector<char> buffer_;
-  size_t readerIndex_;
-  size_t writerIndex_;
+  std::vector<char> buffer_;	// vector用于替代固定大小数组
+  size_t readerIndex_;			// 读位置
+  size_t writerIndex_;			// 写位置
 
-  static const char kCRLF[];
+  static const char kCRLF[];	// "\r\n"
 };
 
 }

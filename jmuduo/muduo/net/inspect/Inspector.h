@@ -38,6 +38,8 @@ class Inspector : boost::noncopyable
             const string& name);
   ~Inspector();
 
+  // 如add("proc", "pid", ProcessInspector::pid, "print pid");
+  // http://192.168.159.188:12345/proc/pid这个http请求就会相应的调用ProcessInspector::pid来处理
   void add(const string& module,
            const string& command,
            const Callback& cb,
